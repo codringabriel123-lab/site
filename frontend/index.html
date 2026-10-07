@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Planul meu de slăbire</title>
+<style>
+:root{--bg:#fff7f9;--card:#fff;--tx:#2a1f25;--mut:#7d6b74;--ac:#ff2d6f;--ac2:#25f4ee;--bd:#f0dde4;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#150f13;--card:#211820;--tx:#f6ecf0;--mut:#b09aa6;--bd:#33262f}}
+:root[data-theme="dark"]{--bg:#150f13;--card:#211820;--tx:#f6ecf0;--mut:#b09aa6;--bd:#33262f}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;line-height:1.5}
+.w{max-width:760px;margin:0 auto;padding:16px}
+header{text-align:center;padding:24px 0 8px}
+h1{margin:0;font-size:1.8rem}
+h1 span{background:linear-gradient(90deg,var(--ac),var(--ac2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{color:var(--mut);margin:4px 0 0}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:16px;margin:14px 0}
+h2{margin:0 0 10px;font-size:1.1rem}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+input{flex:1;min-width:110px;padding:10px 12px;border:1px solid var(--bd);border-radius:10px;background:var(--bg);color:var(--tx);font-size:1rem}
+button{padding:10px 14px;border:0;border-radius:10px;background:var(--ac);color:#fff;font-weight:600;font-size:.95rem;cursor:pointer}
+button.g{background:transparent;color:var(--mut);border:1px solid var(--bd)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+.stats b{display:block;font-size:1.4rem}
+.stats small{color:var(--mut)}
+.bar{height:10px;background:var(--bd);border-radius:99px;overflow:hidden;margin-top:10px}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--ac),var(--ac2));transition:width .4s}
+.chart{overflow-x:auto}
+svg{width:100%;height:auto;display:block}
+.hab{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--bd)}
+.hab:last-child{border:0}
+.hab input{flex:none;min-width:0;width:22px;height:22px;accent-color:var(--ac)}
+.days{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.day{border:1px solid var(--bd);border-radius:12px;padding:10px;background:var(--bg)}
+.day b{color:var(--ac)}
+.day input{width:100%;margin-top:4px;font-size:.9rem;padding:6px 8px}
+.vid{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--bd)}
+.vid a{color:var(--ac);word-break:break-all}
+.tt{display:inline-block;background:#000;color:#fff;padding:10px 14px;border-radius:10px;text-decoration:none;font-weight:600;box-shadow:2px 2px 0 var(--ac2),-2px -2px 0 var(--ac)}
+.msg{color:var(--mut);font-size:.9rem;margin-top:8px}
+footer{text-align:center;color:var(--mut);font-size:.8rem;padding:16px 0}
+</style>
+</head>
+<body>
+<div class="w" id="auth" style="display:none">
+<header><h1>Planul meu de <span>slăbire</span></h1><p class="sub">Intră în cont ca să-ți vezi progresul 💪</p></header>
+<div class="card">
+  <input id="aEmail" type="email" placeholder="Email" style="width:100%;margin-bottom:8px">
+  <input id="aPass" type="password" placeholder="Parolă (min. 6 caractere)" style="width:100%;margin-bottom:10px">
+  <div class="row"><button onclick="auth('login')">Intră</button><button class="g" onclick="auth('register')">Cont nou</button></div>
+  <div class="msg" id="aMsg"></div>
+</div></div>
+<div class="w" id="app" style="display:none">
+<header>
+  <h1>Planul meu de <span>slăbire</span></h1>
+  <p class="sub">Un pas pe zi. Fără grabă, cu răbdare. 💪</p>
+</header>
+
+<div class="card">
+  <h2>🎯 Obiectivul meu</h2>
+  <div class="row">
+    <input id="start" type="number" step="0.1" placeholder="Greutate start (kg)">
+    <input id="goal" type="number" step="0.1" placeholder="Țintă (kg)">
+    <button onclick="saveGoal()">Salvează</button>
+  </div>
+  <div class="stats" style="margin-top:14px">
+    <div><b id="sCur">–</b><small>Acum (kg)</small></div>
+    <div><b id="sLost">–</b><small>Pierdute (kg)</small></div>
+    <div><b id="sLeft">–</b><small>Rămase (kg)</small></div>
+  </div>
+  <div class="bar"><i id="prog"></i></div>
+</div>
+
+<div class="card">
+  <h2>⚖️ Cântărire</h2>
+  <div class="row">
+    <input id="wDate" type="date">
+    <input id="wVal" type="number" step="0.1" placeholder="kg">
+    <button onclick="addW()">Adaugă</button>
+  </div>
+  <div class="chart" id="chart"></div>
+  <div id="wList"></div>
+</div>
+
+<div class="card">
+  <h2>✅ Obiceiuri de azi</h2>
+  <div id="habits"></div>
+  <div class="row" style="margin-top:10px">
+    <input id="newH" placeholder="Obicei nou (ex: 10 min stretching)">
+    <button class="g" onclick="addH()">+ Adaugă</button>
+  </div>
+  <div class="msg" id="streak"></div>
+</div>
+
+<div class="card">
+  <h2>🗓️ Planul săptămânii</h2>
+  <div class="days" id="days"></div>
+</div>
+
+<div class="card">
+  <h2>🎵 TikTok-ul meu</h2>
+  <div class="row">
+    <input id="ttUser" placeholder="@utilizator">
+    <button onclick="saveTT()">Salvează</button>
+  </div>
+  <p style="margin:12px 0"><a class="tt" id="ttBtn" href="#" target="_blank" rel="noopener" style="display:none">Vezi profilul pe TikTok</a></p>
+  <h2 style="font-size:1rem">Videoclipuri din parcursul meu</h2>
+  <div class="row">
+    <input id="vUrl" placeholder="Link video TikTok">
+    <input id="vNote" placeholder="Notiță (ex: Ziua 7)">
+    <button class="g" onclick="addV()">+ Adaugă</button>
+  </div>
+  <div id="vids"></div>
+</div>
+
+<footer>Datele sunt salvate în contul tău. <a href="#" onclick="logout();return false" style="color:var(--ac)">Ieșire</a><br>Pentru probleme de sănătate, vorbește cu medicul tău.</footer>
+</div>
+
+<script src="config.js"></script>
+<script>
+const API=(window.API_URL||'').replace(/\/$/,'');
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const today=()=>new Date().toISOString().slice(0,10);
+const D=['Luni','Marți','Miercuri','Joi','Vineri','Sâmbătă','Duminică'];
+let token=null;try{token=localStorage.getItem('t')}catch(e){}
+let goal={},ws=[],habits=[],done={},plan={},tt='',vids=[];
+
+async function api(p,m='GET',b){
+  const r=await fetch(API+'/api'+p,{method:m,headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:b?JSON.stringify(b):undefined});
+  if(r.status===401&&token){logout();throw 0}
+  const j=await r.json();if(!r.ok)throw j.error||'Eroare';return j}
+async function auth(mode){
+  try{const j=await fetch(API+'/api/'+mode,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:$('aEmail').value,password:$('aPass').value})}).then(async r=>{const x=await r.json();if(!r.ok)throw x.error;return x});
+    token=j.token;try{localStorage.setItem('t',token)}catch(e){}init()}catch(e){$('aMsg').textContent=e||'Eroare'}}
+function logout(){try{localStorage.removeItem('t')}catch(e){}location.reload()}
+const kv=(k,v)=>api('/kv/'+k,'PUT',{value:v}).catch(()=>{});
+
+async function init(){
+  if(!token){$('auth').style.display='block';return}
+  try{const d=await api('/data');({goal,ws,habits,done,plan,tt,vids}=d)}catch(e){return}
+  $('auth').style.display='none';$('app').style.display='block';render()}
+
+function saveGoal(){goal={start:+$('start').value||null,goal:+$('goal').value||null};kv('goal',goal);render()}
+async function addW(){const v=+$('wVal').value;if(!v)return;try{ws=await api('/weights','POST',{d:$('wDate').value||today(),v});$('wVal').value='';render()}catch(e){alert(e)}}
+async function delW(d){ws=await api('/weights/'+d,'DELETE');render()}
+function addH(){const v=$('newH').value.trim();if(!v)return;habits.push(v);kv('habits',habits);$('newH').value='';render()}
+function tog(i){const t=today();done[t]=done[t]||[];const k=done[t].indexOf(i);k<0?done[t].push(i):done[t].splice(k,1);kv('done',done);render()}
+function saveTT(){tt=$('ttUser').value.trim().replace(/^@/,'');kv('tt',tt);render()}
+async function addV(){const u=$('vUrl').value.trim();if(!/^https?:\/\//.test(u))return;try{vids=await api('/videos','POST',{u,n:$('vNote').value.trim()});$('vUrl').value=$('vNote').value='';render()}catch(e){alert(e)}}
+async function delV(id){vids=await api('/videos/'+id,'DELETE');render()}
+function chart(){
+  if(ws.length<2){$('chart').innerHTML='<p class="msg">Adaugă cel puțin 2 cântăriri ca să vezi graficul.</p>';return}
+  const W=600,H=200,p=30,vs=ws.map(w=>w.v),mn=Math.min(...vs)-1,mx=Math.max(...vs)+1;
+  const x=i=>p+i*(W-2*p)/(ws.length-1),y=v=>H-p-(v-mn)*(H-2*p)/(mx-mn);
+  const pts=ws.map((w,i)=>x(i)+','+y(w.v)).join(' ');
+  $('chart').innerHTML=`<svg viewBox="0 0 ${W} ${H}"><polyline points="${pts}" fill="none" stroke="#ff2d6f" stroke-width="3"/>`+
+  ws.map((w,i)=>`<circle cx="${x(i)}" cy="${y(w.v)}" r="4" fill="#25f4ee" stroke="#ff2d6f" stroke-width="2"/>`).join('')+
+  `<text x="4" y="${y(mx-1)+4}" font-size="11" fill="#999">${(mx-1).toFixed(0)}</text><text x="4" y="${y(mn+1)+4}" font-size="11" fill="#999">${(mn+1).toFixed(0)}</text></svg>`;
+}
+function render(){
+  $('start').value=goal.start||'';$('goal').value=goal.goal||'';$('ttUser').value=tt;$('wDate').value=today();
+  const cur=ws.length?ws[ws.length-1].v:(goal.start||null),st=goal.start||(ws[0]&&ws[0].v);
+  $('sCur').textContent=cur??'–';
+  const lost=st&&cur?+(st-cur).toFixed(1):null;$('sLost').textContent=lost??'–';
+  $('sLeft').textContent=goal.goal&&cur?Math.max(0,+(cur-goal.goal).toFixed(1)):'–';
+  $('prog').style.width=(st&&goal.goal&&st>goal.goal&&cur?Math.min(100,Math.max(0,(st-cur)/(st-goal.goal)*100)):0)+'%';
+  chart();
+  $('wList').innerHTML=ws.slice(-5).reverse().map(w=>`<div class="vid"><span>${esc(w.d)} — <b>${w.v} kg</b></span><button class="g" onclick="delW('${esc(w.d)}')">✕</button></div>`).join('');
+  const t=done[today()]||[];
+  $('habits').innerHTML=habits.map((h,i)=>`<label class="hab"><input type="checkbox" ${t.includes(i)?'checked':''} onchange="tog(${i})"><span>${esc(h)}</span></label>`).join('');
+  $('streak').textContent=`Azi: ${t.length}/${habits.length} obiceiuri bifate`+(t.length===habits.length&&habits.length?' 🎉 Bravo!':'');
+  $('days').innerHTML=D.map(d=>`<div class="day"><b>${d}</b><input value="${esc(plan[d]||'')}" placeholder="Antrenament / masă" onchange="plan['${d}']=this.value;kv('plan',plan)"></div>`).join('');
+  const b=$('ttBtn');if(tt){b.style.display='inline-block';b.href='https://www.tiktok.com/@'+encodeURIComponent(tt)}else b.style.display='none';
+  $('vids').innerHTML=vids.map(v=>`<div class="vid"><span><b>${esc(v.n||'Video')}</b><br><a href="${esc(v.u)}" target="_blank" rel="noopener">${esc(v.u)}</a></span><button class="g" onclick="delV('${v.id}')">✕</button></div>`).join('');
+}
+init();
+</script>
